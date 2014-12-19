@@ -4110,10 +4110,13 @@ int player::faith(bool calc_unid, bool items) const
 {
     int net_faith = actor::faith(calc_unid, items);
 
+    mprf("net faith= %d", net_faith);
     if (species == SP_LACERTILIAN)
         net_faith = 1;
     if (player_mutation_level(MUT_FORLORN))
         net_faith--;
+
+    mprf("net faith= %d", net_faith);
 
     return net_faith;
 }
