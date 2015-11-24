@@ -1973,12 +1973,11 @@ int mons_avg_hp(monster_type mc)
         return me->hpdice[0] *
                (2 * (me->hpdice[1] + mbase->hpdice[1])
                 + me->hpdice[2] + mbase->hpdice[2])
-               / 2 + me->hpdice[3] + mbase->hpdice[3];
+               / 2;
     }
 
     // [ds] XXX: Use monster experience value as a better indicator of diff.?
-    return me->hpdice[0] * (2 * me->hpdice[1] + me->hpdice[2]) / 2
-           + me->hpdice[3];
+    return me->hpdice[0] * (2 * me->hpdice[1] + me->hpdice[2]) / 2;
 }
 
 int exper_value(const monster* mon, bool real)
@@ -2011,7 +2010,7 @@ int exper_value(const monster* mon, bool real)
         // general.
         if (m->mc == MONS_PANDEMONIUM_LORD)
             hd = m->hpdice[0];
-        maxhp = hd * m->hpdice[1] + (hd * (1 + m->hpdice[2])) / 2 + m->hpdice[3];
+        maxhp = hd * m->hpdice[1] + (hd * (1 + m->hpdice[2])) / 2;
     }
 
     // Hacks to make merged slime creatures not worth so much exp. We
@@ -2609,7 +2608,7 @@ bool init_abomination(monster* mon, int hd)
     mon->set_hit_dice(min(max_hd, hd));
 
     const monsterentry *m = get_monster_data(mon->type);
-    int hp = hit_points(hd, m->hpdice[1], m->hpdice[2]) + m->hpdice[3];
+    int hp = hit_points(hd, m->hpdice[1], m->hpdice[2]);
 
     mon->max_hit_points = hp;
     mon->hit_points     = hp;
@@ -2724,7 +2723,6 @@ void define_monster(monster* mons)
         hp     = hit_points(hd,
                             mbase->hpdice[1] + m->hpdice[1],
                             mbase->hpdice[2] + m->hpdice[2]);
-        hp    += mbase->hpdice[3] + m->hpdice[3];
     }
 
     if (col == COLOUR_UNDEF) // but never give out darkgrey to monsters
@@ -2732,10 +2730,7 @@ void define_monster(monster* mons)
 
     // Some calculations.
     if (hp == 0)
-    {
         hp     = hit_points(hd, m->hpdice[1], m->hpdice[2]);
-        hp    += m->hpdice[3];
-    }
     hp_max = hp;
 
     // So let it be written, so let it be done.
