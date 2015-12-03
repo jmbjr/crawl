@@ -1267,7 +1267,7 @@ ENDMAP
 #
 NAME:   church_of_pain_bobbens
 ORIENT: northwest
-TAGS:   no_monster_gen no_item_gen layout_city
+TAGS:   no_monster_gen no_item_gen layout_city layout_rooms
 PLACE:  Crypt:$
 KMONS:  0 = lost soul / nothing
 # MONSTER LAYOUT
@@ -1496,7 +1496,7 @@ ENDMAP
 # XXX: Undiggable glass has been converted to grates.
 NAME:   david_glass_crypt
 ORIENT: float
-TAGS:   no_item_gen no_rotate layout_city
+TAGS:   no_item_gen no_rotate layout_city layout_rooms
 PLACE:  Crypt:$
 MARKER: m = lua:portal_desc {wall_phase = 1}
 KFEAT:  m = iron_grate
@@ -1848,7 +1848,7 @@ NAME:   due_elkab
 PLACE:  Crypt:$
 ORIENT: north
 TAGS:   no_monster_gen no_item_gen no_pool_fixup no_rotate no_trap_gen
-TAGS:   layout_city
+TAGS:   layout_city layout_rooms
 NSUBST: A = 1:+ / *:c
 NSUBST: B = 1:+ / *:c
 NSUBST: C = 1:6 / *:5
@@ -2068,7 +2068,7 @@ ENDMAP
 ###############################################################################
 
 NAME:    lightli_unholy_cathedral
-TAGS:    no_monster_gen layout_city
+TAGS:    no_monster_gen layout_city layout_rooms
 PLACE:   Crypt:$
 ORIENT:  north
 MONS:    ancient champion, lich / revenant, jiangshi / ghoul w:2
