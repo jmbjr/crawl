@@ -344,7 +344,7 @@ ENDMAP
 # TODO: Only place lava rooms in Depths, Zot, and Pan
 #
 NAME:   layout_gridlike
-DEPTH:  Elf, Lair, Snake, Crypt, Depths, Zot, Pan
+DEPTH:  Elf, Lair, Snake, Crypt, !Crypt:$,  Depths, Zot, Pan
 WEIGHT: 20 (Elf), 10 (Lair), 10 (Snake), 15 (Crypt)
 WEIGHT: 20 (Depths), 20 (Zot), 15 (Pan)
 ORIENT: encompass
