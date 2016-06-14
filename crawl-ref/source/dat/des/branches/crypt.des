@@ -1303,7 +1303,7 @@ ENDMAP
 #
 NAME:   church_of_pain_bobbens
 ORIENT: northwest
-TAGS:   no_monster_gen no_item_gen layout_city
+TAGS:   no_monster_gen no_item_gen layout_city layout_divisions
 PLACE:  Crypt:$
 KMONS:  0 = lost soul / nothing
 # MONSTER LAYOUT
@@ -1418,6 +1418,7 @@ ENDMAP
 #       gigantic sort of aquatic base
 #
 NAME:   cryptofortress_bobbens
+WEIGHT: 0
 ORIENT: encompass
 TAGS:   no_monster_gen no_item_gen no_pool_fixup no_rotate no_vmirror
 PLACE:  Crypt:$
@@ -1579,6 +1580,7 @@ ENDMAP
 #       burial hoard (NE), chapel of kikubaaqudgha (NW), catacombs (SE), crematory (SW)
 #
 NAME:   quadcrypt_mu
+WEIGHT: 0
 ORIENT: encompass
 TAGS:   no_monster_gen no_item_gen no_pool_fixup no_rotate no_vmirror no_hmirror
 PLACE:  Crypt:$
@@ -1728,6 +1730,7 @@ ENDMAP
 # A: ~use your Imagination~
 #
 NAME:   evilmike_haunted_forest
+WEIGHT: 0
 ORIENT: encompass
 PLACE:  Crypt:$
 TAGS:   no_monster_gen no_item_gen no_pool_fixup no_rotate
@@ -1880,7 +1883,7 @@ NAME:   due_elkab
 PLACE:  Crypt:$
 ORIENT: north
 TAGS:   no_monster_gen no_item_gen no_pool_fixup no_rotate no_trap_gen
-TAGS:   layout_city
+TAGS:   layout_city layout_divisions
 NSUBST: A = 1:+ / *:c
 NSUBST: B = 1:+ / *:c
 NSUBST: C = 1:6 / *:5
@@ -1981,6 +1984,7 @@ ENDMAP
 #        The death's head, by Grunt.
 #
 NAME:    grunt_crypt_end_deaths_head
+WEIGHT:  0
 TAGS:    patrolling no_monster_gen no_rotate no_hmirror no_vmirror
 PLACE:   Crypt:$
 ORIENT:  encompass
@@ -2100,7 +2104,7 @@ ENDMAP
 ###############################################################################
 
 NAME:    lightli_unholy_cathedral
-TAGS:    no_monster_gen layout_city
+TAGS:    no_monster_gen layout_city layout_divisions
 PLACE:   Crypt:$
 ORIENT:  north
 MONS:    ancient champion, lich / revenant, jiangshi / ghoul w:2
