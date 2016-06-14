@@ -38,7 +38,7 @@
 #
 NAME:     layout_cryptic_divisions_a
 DEPTH:    Crypt:$
-WEIGHT:   15
+WEIGHT:   9999
 ORIENT:   encompass
 TAGS:     overwritable layout allow_dup unrand layout_type_divisions
 SUBVAULT: A : cryptic_division_quadrant_a
@@ -451,7 +451,7 @@ ENDMAP
 #
 NAME:     layout_cryptic_divisions_b
 DEPTH:    Crypt:$
-WEIGHT:   10
+WEIGHT:   9999
 ORIENT:   encompass
 TAGS:     overwritable layout allow_dup unrand layout_type_divisions
 SHUFFLE: yz
