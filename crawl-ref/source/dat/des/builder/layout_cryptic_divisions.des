@@ -16,7 +16,7 @@
 # Crypts and are intended to have a total weight of ToDo.
 # If more forms or other layout_type_divisions layouts are
 # added to the branch, the existing weights should be adjusted
-# to avoid increasuing the total weight.
+# to avoid increasing the total weight.
 #
 
 
@@ -26,15 +26,15 @@
 #
 # This is the original cryptic_divisions layout.
 #
-# This layout uses 5 subvaults to place a maze of adjoining
-# rooms.  There are 4 quadrants (as in Vaults:$) and an octagon
-# for the center.  Subvaults should have randomization and the
-# allow_dup tag.  More quadrants and centers are welcome.
+# This layout uses 8 subvaults to place a maze of adjoining
+# rooms.  There are 2 big subvaults, 2 thin subvaults, and 4 
+# small subvaults. 
+# Subvaults should have randomization and the
+# allow_dup tag.  
 #
 # Quadrants for this map should have the tag
 # "cryptic_division_quadrant_a".
 #
-# Octagons should have the tag "cryptic_division_octagon".
 #
 NAME:     layout_cryptic_divisions_a
 DEPTH:    Crypt:$
