@@ -2,7 +2,8 @@
 # layout_cryptic_divisions.des: A layout_type_divisions layout for Crypt:$
 #                     
 ###############################################################################
-
+# Required file contains overview of geoelf room placement
+: require("dlua/layout/geoelf.lua")
 
 ##############################################################
 # layout_cryptic_divisions
@@ -50,6 +51,47 @@ SUBVAULT: F : cryptic_division_thin
 SUBVAULT: G : cryptic_division_small
 SUBVAULT: H : cryptic_division_small
 SUBST: ABCDEFGH = .
+{{
+  --
+  --  PHASE 1: Resize the map to maximal size.
+  --
+
+  local gxm, gym = dgn.max_bounds()
+  crawl.mpr("resizing map to maximal size")
+  crawl.mpr(gxm)
+  crawl.mpr(gym)
+  extend_map{width = gxm, height = gym, fill = 'x'}
+
+  --
+  --  PHASE 2: Choose design and placement of castle and rooms
+  --           based on primary vault
+  --
+
+  -- choose which sides of primary vault have castle and rooms
+  local p_x_min, p_x_max, p_y_min, p_y_max = primary_vault_dimensions()
+  if (p_x_min == nil) then
+    crawl.mpr("layout_geoelf_castle didn't veto for no primary vault")
+    return true  -- no primary vault
+  else
+    crawl.mpr("Primary Vault Coords")
+    crawl.mpr(p_x_min)
+    crawl.mpr(p_x_max)
+    crawl.mpr(p_y_min)
+    crawl.mpr(p_y_max)
+
+  end
+
+  local primary_vault = { bounds = {}, border = {} }
+  primary_vault.bounds[geoelf.directions.W] = p_x_min
+  primary_vault.bounds[geoelf.directions.E] = p_x_max
+  primary_vault.bounds[geoelf.directions.N] = p_y_min
+  primary_vault.bounds[geoelf.directions.S] = p_y_max
+  primary_vault.border[geoelf.directions.W] =       p_x_min - 1
+  primary_vault.border[geoelf.directions.E] = gxm - p_x_max - 2
+  primary_vault.border[geoelf.directions.N] =       p_y_min - 1
+  primary_vault.border[geoelf.directions.S] = gym - p_y_max - 2
+
+}}
 
 MAP
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
