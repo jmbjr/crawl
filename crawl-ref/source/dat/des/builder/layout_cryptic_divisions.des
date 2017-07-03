@@ -1244,7 +1244,7 @@ ENDMAP
 NAME:    cryptic_division_big_base
 WEIGHT:  10
 TAGS:    cryptic_division_big allow_dup unrand
-KMASK:   . = vault
+#KMASK:   . = vault
 MAP
 ...............................................
 ...............................................
@@ -1265,7 +1265,7 @@ ENDMAP
 NAME:    cryptic_division_small_base
 WEIGHT:  10
 TAGS:    cryptic_division_small allow_dup unrand
-KMASK:   . = vault
+#KMASK:   . = vault
 MAP
 .......................
 .......................
@@ -1285,7 +1285,7 @@ ENDMAP
 NAME:    cryptic_division_small_simple
 WEIGHT:  99999
 TAGS:    cryptic_division_small allow_dup unrand
-KMASK:   . = vault
+#KMASK:   . = vault
 MAP
 .......................
 .xxxx..xxx...xxx..xxxx.
@@ -1306,7 +1306,7 @@ ENDMAP
 NAME:    cryptic_division_thin_base
 WEIGHT:  10
 TAGS:    cryptic_division_thin allow_dup unrand
-KMASK:   . = vault
+#KMASK:   . = vault
 MAP
 .............
 .............
