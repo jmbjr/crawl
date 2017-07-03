@@ -895,8 +895,8 @@ SUBST: ABCDEFGH = .
 
   -- run the geoelf generator to add the rooms
   --    -> note that this can interact with the castle area
-  geoelf.generate(_G, room_data, corridor_data, ROOMS_EXTRA_CORRIDOR_FRACTION,
-                  ROOMS_FANCY_ROOM_FRACTION, false, false)
+  --  geoelf.generate(_G, room_data, corridor_data, ROOMS_EXTRA_CORRIDOR_FRACTION,
+  --                ROOMS_FANCY_ROOM_FRACTION, false, false)
 
 
 
