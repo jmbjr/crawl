@@ -165,7 +165,92 @@ SUBST: ABCDEFGH = .
     end
   end
 
-  -- skip phase 3 for now
+  --
+  --  PHASE 3: Design the castle
+  --
+
+  -- choose the shape of the components
+  castle = { base = {}, inner = {}, hallway = {}, moat = {}, open = {},
+             overwritable = {}, turret = {} }
+
+  for i = 0, geoelf.directions.COUNT_STRAIGHT - 1 do
+    castle.base[i] = primary_vault.bounds[i]
+  end
+
+  if (castle.base[geoelf.directions.W] < 1) then
+    castle.base[geoelf.directions.W] = 1
+  end
+  if (castle.base[geoelf.directions.E] > gxm - 2) then
+    castle.base[geoelf.directions.E] = gxm - 2
+  end
+  if (castle.base[geoelf.directions.N] < 1) then
+    castle.base[geoelf.directions.N] = 1
+  end
+  if (castle.base[geoelf.directions.S] > gym - 2) then
+    castle.base[geoelf.directions.S] = gym - 2
+  end
+
+  for i = 0, geoelf.directions.COUNT_STRAIGHT - 1 do
+    local step_sign = geoelf.directions.STEP_SIGN[i]
+
+    if (is_castle[i]) then
+      castle.inner[i]        = castle.base[i]    + CASTLE_INNER     * step_sign
+      castle.hallway[i]      = castle.inner[i]   + CASTLE_HALLWAY   * step_sign
+      castle.moat[i]         = castle.hallway[i] + CASTLE_MOAT      * step_sign
+      castle.open[i]         = castle.moat[i]    + CASTLE_OPEN      * step_sign
+      castle.overwritable[i] = castle.open[i] + CASTLE_OVERWRITABLE * step_sign
+    else
+      castle.inner[i]        = castle.base[i] + step_sign
+      castle.hallway[i]      = castle.base[i] + step_sign
+      castle.moat[i]         = castle.base[i]
+      castle.open[i]         = castle.base[i]
+      castle.overwritable[i] = castle.base[i]
+    end
+  end
+
+  if (DEBUG_CASTLE_DESIGN) then
+    print("Castle Bounds")
+    print("  Base: ("    .. castle.base[geoelf.directions.W]
+                .. " - " .. castle.base[geoelf.directions.E]
+                .. ", "  .. castle.base[geoelf.directions.N]
+                .. " - " .. castle.base[geoelf.directions.S] .. ")")
+    print("  Inner: ("   .. castle.inner[geoelf.directions.W]
+                .. " - " .. castle.inner[geoelf.directions.E]
+                .. ", "  .. castle.inner[geoelf.directions.N]
+                .. " - " .. castle.inner[geoelf.directions.S] .. ")")
+    print("  Hallway: (" .. castle.hallway[geoelf.directions.W]
+                .. " - " .. castle.hallway[geoelf.directions.E]
+                .. ", "  .. castle.hallway[geoelf.directions.N]
+                .. " - " .. castle.hallway[geoelf.directions.S] .. ")")
+    print("  Moat: ("    .. castle.moat[geoelf.directions.W]
+                .. " - " .. castle.moat[geoelf.directions.E]
+                .. ", "  .. castle.moat[geoelf.directions.N]
+                .. " - " .. castle.moat[geoelf.directions.S] .. ")")
+    print("  Open: ("    .. castle.open[geoelf.directions.W]
+                .. " - " .. castle.open[geoelf.directions.E]
+                .. ", "  .. castle.open[geoelf.directions.N]
+                .. " - " .. castle.open[geoelf.directions.S] .. ")")
+    print("  Overwritable: ("    .. castle.overwritable[geoelf.directions.W]
+                        .. " - " .. castle.overwritable[geoelf.directions.E]
+                        .. ", "  .. castle.overwritable[geoelf.directions.N]
+                        .. " - " .. castle.overwritable[geoelf.directions.S]
+                        .. ")")
+  end
+
+  -- choose which turrets to add
+  for i = geoelf.directions.COUNT_STRAIGHT, geoelf.directions.COUNT - 1 do
+    local component_x = geoelf.directions.COMPONENT_X[i]
+    local component_y = geoelf.directions.COMPONENT_Y[i]
+
+    castle.turret[i] = {}
+    castle.turret[i].is_placed = (    is_castle[component_x]
+                                  and is_castle[component_y])
+    -- turret position is linked to inner rooms, not hallway
+    castle.turret[i].x = castle.inner[component_x]
+                         + geoelf.directions.STEP_SIGN[component_x]
+    castle.turret[i].y = castle.inner[component_y]
+                         + geoelf.directions.STEP_SIGN[component_y]
+  end
 
   --
   --  PHASE 4: Choose which rooms to add to the basic grid
