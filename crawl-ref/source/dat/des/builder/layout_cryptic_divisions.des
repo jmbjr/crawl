@@ -5,6 +5,7 @@
 # Required file contains overview of geoelf room placement
 : require("dlua/layout/geoelf.lua")
 
+
 {{
   --
   -- Constants
@@ -109,20 +110,21 @@ SUBVAULT: F : cryptic_division_thin
 SUBVAULT: G : cryptic_division_small
 SUBVAULT: H : cryptic_division_small
 SUBST: ABCDEFGH = .
+TAGS:   no_rotate no_vmirror no_hmirror
 {{
   local INSIDE_GLYPH = "'"
   local WALL_GLYPH   = "c"
   local DOOR_GLYPH   = "="
   local MOAT_GLYPH   = "w"
+
   --
   --  PHASE 1: Resize the map to maximal size.
   --
 
   local gxm, gym = dgn.max_bounds()
-  crawl.mpr("resizing map to maximal size")
-  crawl.mpr(gxm)
-  crawl.mpr(gym)
   extend_map{width = gxm, height = gym, fill = 'x'}
+
+
 
   --
   --  PHASE 2: Choose design and placement of castle and rooms
@@ -134,13 +136,6 @@ SUBST: ABCDEFGH = .
   if (p_x_min == nil) then
     crawl.mpr("layout_geoelf_castle didn't veto for no primary vault")
     return true  -- no primary vault
-  else
-    crawl.mpr("Primary Vault Coords")
-    crawl.mpr(p_x_min)
-    crawl.mpr(p_x_max)
-    crawl.mpr(p_y_min)
-    crawl.mpr(p_y_max)
-
   end
 
   local primary_vault = { bounds = {}, border = {} }
@@ -157,17 +152,33 @@ SUBST: ABCDEFGH = .
   local is_rooms  = {}
   local gate_best = nil
   local gate_best_space = 0
-
   for i = 0, geoelf.directions.COUNT_STRAIGHT - 1 do
     is_castle[i] = (primary_vault.border[i] >= CASTLE_TOTAL)
     is_rooms[i]  = (primary_vault.border[i] >= ROOMS_MIN_SPACE)
 
-  -- put the castle gate on the side with most space
+    -- put the castle gate on the side with most space
     if (primary_vault.border[i] > gate_best_space) then
       gate_best = i
       gate_best_space = primary_vault.border[i]
     end
   end
+
+  if (DEBUG_CASTLE_DESIGN) then
+    print("")
+    print("GEOELF CASTLE DEBUG INFO")
+    print("Primary vault")
+    print("  Bounds: (" .. primary_vault.bounds[geoelf.directions.W]
+             .. " and " .. primary_vault.bounds[geoelf.directions.E]
+             .. ", "    .. primary_vault.bounds[geoelf.directions.N]
+             .. " and " .. primary_vault.bounds[geoelf.directions.S] .. ")")
+    print("  Borders: (" .. primary_vault.border[geoelf.directions.W]
+              .. " and " .. primary_vault.border[geoelf.directions.E]
+              .. ", "    .. primary_vault.border[geoelf.directions.N]
+              .. " and " .. primary_vault.border[geoelf.directions.S]
+              .. ") / " .. CASTLE_TOTAL .. ", " .. ROOMS_MIN_SPACE)
+  end
+
+
 
   --
   --  PHASE 3: Design the castle
@@ -255,6 +266,8 @@ SUBST: ABCDEFGH = .
     castle.turret[i].y = castle.inner[component_y]
                          + geoelf.directions.STEP_SIGN[component_y]
   end
+
+
 
   --
   --  PHASE 4: Choose which rooms to add to the basic grid
@@ -895,8 +908,8 @@ SUBST: ABCDEFGH = .
 
   -- run the geoelf generator to add the rooms
   --    -> note that this can interact with the castle area
-  --  geoelf.generate(_G, room_data, corridor_data, ROOMS_EXTRA_CORRIDOR_FRACTION,
-  --                ROOMS_FANCY_ROOM_FRACTION, false, false)
+  geoelf.generate(_G, room_data, corridor_data, ROOMS_EXTRA_CORRIDOR_FRACTION,
+                  ROOMS_FANCY_ROOM_FRACTION, false, false)
 
 
 
@@ -1163,7 +1176,6 @@ veto {{
     return false
   end
 }}
-
 MAP
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcBBBBBBBBBBBBBx
