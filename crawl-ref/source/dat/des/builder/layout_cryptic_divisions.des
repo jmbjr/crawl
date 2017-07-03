@@ -165,6 +165,206 @@ SUBST: ABCDEFGH = .
     end
   end
 
+  -- skip phase 3 for now
+
+  --
+  --  PHASE 4: Choose which rooms to add to the basic grid
+  --           outside the castle
+  --
+
+  local edge_rooms = {}
+
+  -- spacing of north and south rooms along x axis
+  local min_x = castle.overwritable[geoelf.directions.W] + ROOMS_INTO_CASTLE
+  local max_x = castle.overwritable[geoelf.directions.E] - ROOMS_INTO_CASTLE
+  local range_x = max_x - min_x
+  edge_rooms.count_x = math.floor(range_x / ROOMS_SPACING_MIN) + 1
+  local range_x_min = (edge_rooms.count_x - 1) * ROOMS_SPACING_MIN
+  edge_rooms.spacing_x = ROOMS_SPACING_MIN
+  edge_rooms.allow_diagonals_x = true
+
+  if (is_rooms[geoelf.directions.W]) then
+    if (is_rooms[geoelf.directions.E]) then
+      -- spread out the rooms to connect on both sides
+      --  -> this prevents diagonal connections on the side
+      edge_rooms.min_x = min_x
+      edge_rooms.spacing_x = range_x / (edge_rooms.count_x - 1)
+      edge_rooms.allow_diagonals_x = false
+    else
+      -- pack the rooms against the west side
+      edge_rooms.min_x = min_x
+    end
+  else
+    if (is_rooms[geoelf.directions.E]) then
+      -- pack the rooms against the east side
+      edge_rooms.min_x = max_x - range_x_min
+    else
+      -- center the rooms
+      local min_x_max = max_x - range_x_min
+      edge_rooms.min_x = math.floor((min_x + min_x_max) / 2)
+    end
+  end
+
+  -- spacing of east and west rooms along x axis
+  local min_y = castle.overwritable[geoelf.directions.N] + ROOMS_INTO_CASTLE
+  local max_y = castle.overwritable[geoelf.directions.S] - ROOMS_INTO_CASTLE
+  local range_y = max_y - min_y
+  edge_rooms.count_y = math.floor(range_y / ROOMS_SPACING_MIN) + 1
+  local range_y_min = (edge_rooms.count_y - 1) * ROOMS_SPACING_MIN
+  edge_rooms.spacing_y = ROOMS_SPACING_MIN
+  edge_rooms.allow_diagonals_y = true
+
+  if (is_rooms[geoelf.directions.N]) then
+    if (is_rooms[geoelf.directions.S]) then
+      -- spread out the rooms to connect on both sides
+      --  -> this prevents diagonal connections on the side
+      edge_rooms.min_y = min_y
+      edge_rooms.spacing_y = range_y / (edge_rooms.count_y - 1)
+      edge_rooms.allow_diagonals_y = false
+    else
+      -- pack the rooms against the east side
+      edge_rooms.min_y = min_y
+    end
+  else
+    if (is_rooms[geoelf.directions.S]) then
+      -- pack the rooms against the west side
+      edge_rooms.min_y = max_y - range_y_min
+    else
+      -- center the rooms
+      local min_y_max = max_y - range_y_min
+      edge_rooms.min_y = math.floor((min_y + min_y_max) / 2)
+    end
+  end
+
+  -- calculate row positions
+  edge_rooms.row_base = {}
+  edge_rooms.row_base[geoelf.directions.W] =
+                   castle.overwritable[geoelf.directions.W] - ROOMS_FROM_CASTLE
+  edge_rooms.row_base[geoelf.directions.E] =
+                   castle.overwritable[geoelf.directions.E] + ROOMS_FROM_CASTLE
+  edge_rooms.row_base[geoelf.directions.N] =
+                   castle.overwritable[geoelf.directions.N] - ROOMS_FROM_CASTLE
+  edge_rooms.row_base[geoelf.directions.S] =
+                   castle.overwritable[geoelf.directions.S] + ROOMS_FROM_CASTLE
+
+  edge_rooms.row_count = {}
+  for i = 0, geoelf.directions.COUNT_STRAIGHT - 1 do
+    if (is_rooms[i] == false) then
+      edge_rooms.row_count[i] = 0
+    else
+      local available_space = primary_vault.border[i]
+                              - (ROOMS_FROM_CASTLE + ROOMS_BORDER_MIN) + 1
+      edge_rooms.row_count[i] = math.floor(available_space / ROOMS_SPACING_MIN)
+      if (edge_rooms.row_count[i] <= 0) then
+        crawl.mpr("Error in layout_geoelf_castle: 0 rows in direction " ..
+                  i .. " filling " .. ROOMS_SPACING_MIN .. " / " ..
+                  available_space .. " space")
+      end
+    end
+  end
+
+  if (DEBUG_CASTLE_DESIGN) then
+    print("Rooms by edge")
+
+    print("  Rooms along castle X: " .. edge_rooms.count_x)
+    print("  Rooms along castle X: " .. edge_rooms.count_x)
+    print("  Rooms minimum spacing: " .. ROOMS_SPACING_MIN ..
+          " (straight),  " .. ROOMS_SPACING_EDGE .. " (diagonal)  + " ..
+          ROOMS_BORDER_MIN .. " (border)")
+
+    local LETTERS =
+      { [geoelf.directions.S] = "S",
+        [geoelf.directions.N] = "N",
+        [geoelf.directions.E] = "E",
+        [geoelf.directions.W] = "W" }
+
+    for i = 0, geoelf.directions.COUNT_STRAIGHT - 1 do
+      local step_sign = geoelf.directions.STEP_SIGN[i]
+      local line = "  " .. LETTERS[i] .. " " .. edge_rooms.row_count[i] ..
+                   (is_rooms[i] and " Y" or " N") .. ": "
+      for j = 0, edge_rooms.row_count[i] - 1 do
+        local pos = edge_rooms.row_base[i] + j * ROOMS_SPACING_MIN * step_sign
+        line = line .. "  " .. pos
+      end
+      print(line)
+    end
+  end
+
+  -- combine all x positions into an array
+  local room_pos_x = {}
+  room_pos_x.begin_center = edge_rooms.row_count[geoelf.directions.W]
+  room_pos_x.begin_east   = room_pos_x.begin_center + edge_rooms.count_x
+  room_pos_x.total        = room_pos_x.begin_east
+                            + edge_rooms.row_count[geoelf.directions.E]
+  room_pos_x.last         = room_pos_x.total - 1
+  local is_room_diagonals_x = {}
+  for i = 0, room_pos_x.total - 1 do
+    is_room_diagonals_x[i] = true
+    if (i < room_pos_x.begin_center) then
+      local rows_out = room_pos_x.begin_center - i - 1
+      room_pos_x[i] = edge_rooms.row_base[geoelf.directions.W]
+                      - rows_out * ROOMS_SPACING_MIN
+    elseif (i < room_pos_x.begin_east) then
+      local rows_along = i - room_pos_x.begin_center
+      room_pos_x[i] = edge_rooms.min_x
+                      + math.floor(rows_along * edge_rooms.spacing_x)
+      is_room_diagonals_x[i] = edge_rooms.allow_diagonals_x
+    else
+      local rows_out = i - room_pos_x.begin_east
+      room_pos_x[i] = edge_rooms.row_base[geoelf.directions.E]
+                      + rows_out * ROOMS_SPACING_MIN
+    end
+  end
+
+  -- combine all y positions into an array
+  local room_pos_y = {}
+  room_pos_y.begin_center = edge_rooms.row_count[geoelf.directions.N]
+  room_pos_y.begin_south  = room_pos_y.begin_center + edge_rooms.count_y
+  room_pos_y.total        = room_pos_y.begin_south
+                            + edge_rooms.row_count[geoelf.directions.S]
+  room_pos_y.last         = room_pos_y.total - 1
+  local is_room_diagonals_y = {}
+  for i = 0, room_pos_y.total - 1 do
+    is_room_diagonals_y[i] = true
+    if (i < room_pos_y.begin_center) then
+      local rows_out = room_pos_y.begin_center - i - 1
+      room_pos_y[i] = edge_rooms.row_base[geoelf.directions.N]
+                      - rows_out * ROOMS_SPACING_MIN
+    elseif (i < room_pos_y.begin_south) then
+      local rows_along = i - room_pos_y.begin_center
+      room_pos_y[i] = edge_rooms.min_y
+                      + math.floor(rows_along * edge_rooms.spacing_y)
+      is_room_diagonals_y[i] = edge_rooms.allow_diagonals_y
+    else
+      local rows_out = i - room_pos_y.begin_south
+      room_pos_y[i] = edge_rooms.row_base[geoelf.directions.S]
+                      + rows_out * ROOMS_SPACING_MIN
+    end
+  end
+
+  if (DEBUG_CASTLE_DESIGN) then
+    print("Room grid positions")
+
+    local line = "  X " .. room_pos_x.total .. ":"
+    for i = 0, room_pos_x.total - 1 do
+      line = line .. "  " .. room_pos_x[i]
+      if (not is_room_diagonals_x[i]) then
+        line = line .. " (NODIAG)"
+      end
+    end
+    print(line)
+
+    local line = "  Y " .. room_pos_y.total .. ":"
+    for i = 0, room_pos_y.total - 1 do
+      line = line .. "  " .. room_pos_y[i]
+      if (not is_room_diagonals_y[i]) then
+        line = line .. " (NODIAG)"
+      end
+    end
+    print(line)
+  end
+
+
 
 }}
 
