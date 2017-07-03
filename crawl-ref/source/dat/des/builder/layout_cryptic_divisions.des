@@ -5,6 +5,64 @@
 # Required file contains overview of geoelf room placement
 : require("dlua/layout/geoelf.lua")
 
+{{
+  --
+  -- Constants
+  --
+  -- These have to be global so they can also be used in the
+  --  veto function.
+  --
+
+  -- size of castle
+  CASTLE_INNER        = 4
+  CASTLE_HALLWAY      = 3
+  CASTLE_MOAT         = 2
+  CASTLE_OPEN         = 1
+  CASTLE_OVERWRITABLE = 3
+  CASTLE_TOTAL        = CASTLE_INNER + CASTLE_HALLWAY      + CASTLE_MOAT +
+                        CASTLE_OPEN  + CASTLE_OVERWRITABLE
+  CASTLE_TURRET_RADIUS      = 4
+  CASTLE_TURRET_MOAT_RADIUS = CASTLE_TURRET_RADIUS + CASTLE_MOAT
+  CASTLE_TURRET_OPEN_RADIUS = CASTLE_TURRET_MOAT_RADIUS + CASTLE_OPEN
+  CASTLE_TURRET_OVERWRITABLE_RADIUS = CASTLE_HALLWAY + CASTLE_MOAT         +
+                                      CASTLE_OPEN    + CASTLE_OVERWRITABLE - 1
+
+  INNER_WALL_SPACING_MIN = 6
+  INNER_WALL_SPACING_MAX = 12
+
+  GATE_FROM_CORNER_MIN = 8
+  GATE_SIZE_MIN = 2
+  GATE_SIZE_MAX = 3
+
+  -- room parameters
+  ROOMS_OFFSET_MAX      = 1
+  ROOMS_RADIUS_MIN      = 3
+  ROOMS_RADIUS_MAX      = 5
+  ROOMS_RADIUS_EDGE_MIN = 2
+  ROOMS_RADIUS_EDGE_MAX = 4
+  ROOMS_EXTRA_CORRIDOR_FRACTION = 0.5
+  ROOMS_FANCY_ROOM_FRACTION     = 0.2
+
+  -- room placement
+  ROOMS_BORDER_MIN  = ROOMS_OFFSET_MAX + ROOMS_RADIUS_MAX + 1
+  ROOMS_FROM_CASTLE = ROOMS_OFFSET_MAX + ROOMS_RADIUS_MAX + 1
+  ROOMS_SPACING_MIN = ROOMS_OFFSET_MAX + ROOMS_RADIUS_MAX * 2 + 2
+  ROOMS_INTO_CASTLE = ROOMS_SPACING_MIN - ROOMS_FROM_CASTLE
+  ROOMS_MIN_SPACE   = CASTLE_TOTAL + ROOMS_BORDER_MIN + ROOMS_FROM_CASTLE
+
+  -- veto tests
+  PRIMARY_VAULT_MIN_PADDING = ROOMS_MIN_SPACE + 1
+  PRIMARY_VAULT_MIN_SIZE    = GATE_FROM_CORNER_MIN + GATE_SIZE_MAX
+                              - CASTLE_HALLWAY - CASTLE_INNER
+
+  -- edge rows of rooms have no individual offset to allow
+  --  for maximum distance from grid
+  ROOMS_SPACING_EDGE   = math.ceil(ROOMS_SPACING_MIN / 2) + 1
+  ROOMS_MIN_SPACE_EDGE = ROOMS_SPACING_EDGE + ROOMS_RADIUS_EDGE_MAX + 2
+
+  DEBUG_CASTLE_DESIGN = false
+}}
+
 ##############################################################
 # layout_cryptic_divisions
 #
@@ -90,6 +148,23 @@ SUBST: ABCDEFGH = .
   primary_vault.border[geoelf.directions.E] = gxm - p_x_max - 2
   primary_vault.border[geoelf.directions.N] =       p_y_min - 1
   primary_vault.border[geoelf.directions.S] = gym - p_y_max - 2
+
+  local is_castle = {}
+  local is_rooms  = {}
+  local gate_best = nil
+  local gate_best_space = 0
+
+  for i = 0, geoelf.directions.COUNT_STRAIGHT - 1 do
+    is_castle[i] = (primary_vault.border[i] >= CASTLE_TOTAL)
+    is_rooms[i]  = (primary_vault.border[i] >= ROOMS_MIN_SPACE)
+
+  -- put the castle gate on the side with most space
+    if (primary_vault.border[i] > gate_best_space) then
+      gate_best = i
+      gate_best_space = primary_vault.border[i]
+    end
+  end
+
 
 }}
 
