@@ -16,15 +16,13 @@
 
   -- size of castle
   CASTLE_INNER        = 4
-  CASTLE_HALLWAY      = 3
   CASTLE_OPEN         = 1 
   CASTLE_OVERWRITABLE = 3
-  CASTLE_TOTAL        = CASTLE_INNER + CASTLE_HALLWAY      +
+  CASTLE_TOTAL        = CASTLE_INNER +
                         CASTLE_OPEN  + CASTLE_OVERWRITABLE
   CASTLE_TURRET_RADIUS      = 4
   CASTLE_TURRET_OPEN_RADIUS = CASTLE_TURRET_RADIUS + CASTLE_OPEN
-  CASTLE_TURRET_OVERWRITABLE_RADIUS = CASTLE_HALLWAY      +
-                                      CASTLE_OPEN    + CASTLE_OVERWRITABLE - 1
+  CASTLE_TURRET_OVERWRITABLE_RADIUS = CASTLE_OPEN    + CASTLE_OVERWRITABLE - 1
 
   INNER_WALL_SPACING_MIN = 6
   INNER_WALL_SPACING_MAX = 12
@@ -51,8 +49,7 @@
 
   -- veto tests
   PRIMARY_VAULT_MIN_PADDING = ROOMS_MIN_SPACE + 1
-  PRIMARY_VAULT_MIN_SIZE    = GATE_FROM_CORNER_MIN + GATE_SIZE_MAX
-                              - CASTLE_HALLWAY - CASTLE_INNER
+  PRIMARY_VAULT_MIN_SIZE    = GATE_FROM_CORNER_MIN + GATE_SIZE_MAX - CASTLE_INNER
 
   -- edge rows of rooms have no individual offset to allow
   --  for maximum distance from grid
@@ -182,7 +179,7 @@ TAGS:   no_rotate no_vmirror no_hmirror
   --
 
   -- choose the shape of the components
-  castle = { base = {}, inner = {}, hallway = {}, open = {},
+  castle = { base = {}, inner = {},  open = {},
              overwritable = {}, turret = {} }
 
   for i = 0, geoelf.directions.COUNT_STRAIGHT - 1 do
@@ -207,12 +204,10 @@ TAGS:   no_rotate no_vmirror no_hmirror
 
     if (is_castle[i]) then
       castle.inner[i]        = castle.base[i]    + CASTLE_INNER     * step_sign
-      castle.hallway[i]      = castle.inner[i]   + CASTLE_HALLWAY   * step_sign
-      castle.open[i]         = castle.hallway[i] + CASTLE_OPEN      * step_sign
+      castle.open[i]         = castle.inner[i] + CASTLE_OPEN      * step_sign
       castle.overwritable[i] = castle.open[i] + CASTLE_OVERWRITABLE * step_sign
     else
       castle.inner[i]        = castle.base[i] + step_sign
-      castle.hallway[i]      = castle.base[i] + step_sign
       castle.open[i]         = castle.base[i]
       castle.overwritable[i] = castle.base[i]
     end
@@ -228,10 +223,6 @@ TAGS:   no_rotate no_vmirror no_hmirror
                 .. " - " .. castle.inner[geoelf.directions.E]
                 .. ", "  .. castle.inner[geoelf.directions.N]
                 .. " - " .. castle.inner[geoelf.directions.S] .. ")")
-    print("  Hallway: (" .. castle.hallway[geoelf.directions.W]
-                .. " - " .. castle.hallway[geoelf.directions.E]
-                .. ", "  .. castle.hallway[geoelf.directions.N]
-                .. " - " .. castle.hallway[geoelf.directions.S] .. ")")
     print("  Open: ("    .. castle.open[geoelf.directions.W]
                 .. " - " .. castle.open[geoelf.directions.E]
                 .. ", "  .. castle.open[geoelf.directions.N]
@@ -878,15 +869,15 @@ TAGS:   no_rotate no_vmirror no_hmirror
 
   -- draw the open area around the castle
 
-  fill_area { x1 = castle.hallway[geoelf.directions.W] + 1,
-              x2 = castle.hallway[geoelf.directions.E] - 1,
+  fill_area { x1 = 1,
+              x2 = 1,
               y1 = castle.overwritable[geoelf.directions.N],
               y2 = castle.overwritable[geoelf.directions.S],
               fill = geoelf.glyphs.FLOOR }
   fill_area { x1 = castle.overwritable[geoelf.directions.W],
               x2 = castle.overwritable[geoelf.directions.E],
-              y1 = castle.hallway[geoelf.directions.N] + 1,
-              y2 = castle.hallway[geoelf.directions.S] - 1,
+              y1 = 1,
+              y2 = 1,
               fill = geoelf.glyphs.FLOOR }
 
   for i = geoelf.directions.COUNT_STRAIGHT, geoelf.directions.COUNT - 1 do
@@ -923,12 +914,6 @@ TAGS:   no_rotate no_vmirror no_hmirror
   end
 
 
-  -- draw the hallways
-  fill_area { x1 = castle.hallway[geoelf.directions.W],
-              x2 = castle.hallway[geoelf.directions.E],
-              y1 = castle.hallway[geoelf.directions.N],
-              y2 = castle.hallway[geoelf.directions.S],
-              border = WALL_GLYPH, fill = INSIDE_GLYPH }
 
   -- draw the inner rooms
   fill_area { x1 = castle.inner[geoelf.directions.W],
@@ -991,20 +976,18 @@ TAGS:   no_rotate no_vmirror no_hmirror
 
   if (gate_best == geoelf.directions.S or
       gate_best == geoelf.directions.N) then
-    local gate_x_min = castle.hallway[geoelf.directions.W]
-                       + GATE_FROM_CORNER_MIN
-    local gate_x_max = castle.hallway[geoelf.directions.E]
-                       - GATE_FROM_CORNER_MIN
+    local gate_x_min = GATE_FROM_CORNER_MIN
+    local gate_x_max = GATE_FROM_CORNER_MIN -1 
     local gate_x = crawl.random_range(gate_x_min, gate_x_max - gate_size)
 
     local gate_y
     if (gate_best == geoelf.directions.S) then
-      gate_y = castle.hallway[geoelf.directions.S]
+      gate_y = 1 
       fill_area { x1 = gate_x, x2 = gate_x + gate_size - 1,
                   y1 = gate_y + 1, y2 = gate_y + 1 ,
                   fill = INSIDE_GLYPH }
     else
-      gate_y = castle.hallway[geoelf.directions.N]
+      gate_y = 2 
       fill_area { x1 = gate_x, x2 = gate_x + gate_size - 1,
                   y1 = gate_y - 1 , y2 = gate_y - 1,
                   fill = INSIDE_GLYPH }
@@ -1013,20 +996,18 @@ TAGS:   no_rotate no_vmirror no_hmirror
                 y1 = gate_y, y2 = gate_y,
                 fill = DOOR_GLYPH }
   else
-    local gate_y_min = castle.hallway[geoelf.directions.N]
-                       + GATE_FROM_CORNER_MIN
-    local gate_y_max = castle.hallway[geoelf.directions.S]
-                       - GATE_FROM_CORNER_MIN
+    local gate_y_min = GATE_FROM_CORNER_MIN 
+    local gate_y_max = GATE_FROM_CORNER_MIN -1
     local gate_y = crawl.random_range(gate_y_min, gate_y_max - gate_size)
 
     local gate_x
     if (gate_best == geoelf.directions.E) then
-      gate_x = castle.hallway[geoelf.directions.E]
+      gate_x = 1 
       fill_area { x1 = gate_x + 1, x2 = gate_x + 1 ,
                   y1 = gate_y, y2 = gate_y + gate_size - 1,
                   fill = INSIDE_GLYPH }
     else
-      gate_x = castle.hallway[geoelf.directions.W]
+      gate_x = 2
       fill_area { x1 = gate_x - 1 , x2 = gate_x - 1,
                   y1 = gate_y, y2 = gate_y + gate_size - 1,
                   fill = INSIDE_GLYPH }
