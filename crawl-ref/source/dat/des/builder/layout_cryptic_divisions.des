@@ -17,15 +17,13 @@
   -- size of castle
   CASTLE_INNER        = 4
   CASTLE_HALLWAY      = 3
-  CASTLE_MOAT         = 2
-  CASTLE_OPEN         = 1
+  CASTLE_OPEN         = 1 
   CASTLE_OVERWRITABLE = 3
-  CASTLE_TOTAL        = CASTLE_INNER + CASTLE_HALLWAY      + CASTLE_MOAT +
+  CASTLE_TOTAL        = CASTLE_INNER + CASTLE_HALLWAY      +
                         CASTLE_OPEN  + CASTLE_OVERWRITABLE
   CASTLE_TURRET_RADIUS      = 4
-  CASTLE_TURRET_MOAT_RADIUS = CASTLE_TURRET_RADIUS + CASTLE_MOAT
-  CASTLE_TURRET_OPEN_RADIUS = CASTLE_TURRET_MOAT_RADIUS + CASTLE_OPEN
-  CASTLE_TURRET_OVERWRITABLE_RADIUS = CASTLE_HALLWAY + CASTLE_MOAT         +
+  CASTLE_TURRET_OPEN_RADIUS = CASTLE_TURRET_RADIUS + CASTLE_OPEN
+  CASTLE_TURRET_OVERWRITABLE_RADIUS = CASTLE_HALLWAY      +
                                       CASTLE_OPEN    + CASTLE_OVERWRITABLE - 1
 
   INNER_WALL_SPACING_MIN = 6
@@ -115,7 +113,6 @@ TAGS:   no_rotate no_vmirror no_hmirror
   local INSIDE_GLYPH = "'"
   local WALL_GLYPH   = "c"
   local DOOR_GLYPH   = "="
-  local MOAT_GLYPH   = "w"
 
   --
   --  PHASE 1: Resize the map to maximal size.
@@ -185,7 +182,7 @@ TAGS:   no_rotate no_vmirror no_hmirror
   --
 
   -- choose the shape of the components
-  castle = { base = {}, inner = {}, hallway = {}, moat = {}, open = {},
+  castle = { base = {}, inner = {}, hallway = {}, open = {},
              overwritable = {}, turret = {} }
 
   for i = 0, geoelf.directions.COUNT_STRAIGHT - 1 do
@@ -211,13 +208,11 @@ TAGS:   no_rotate no_vmirror no_hmirror
     if (is_castle[i]) then
       castle.inner[i]        = castle.base[i]    + CASTLE_INNER     * step_sign
       castle.hallway[i]      = castle.inner[i]   + CASTLE_HALLWAY   * step_sign
-      castle.moat[i]         = castle.hallway[i] + CASTLE_MOAT      * step_sign
-      castle.open[i]         = castle.moat[i]    + CASTLE_OPEN      * step_sign
+      castle.open[i]         = castle.hallway[i] + CASTLE_OPEN      * step_sign
       castle.overwritable[i] = castle.open[i] + CASTLE_OVERWRITABLE * step_sign
     else
       castle.inner[i]        = castle.base[i] + step_sign
       castle.hallway[i]      = castle.base[i] + step_sign
-      castle.moat[i]         = castle.base[i]
       castle.open[i]         = castle.base[i]
       castle.overwritable[i] = castle.base[i]
     end
@@ -237,10 +232,6 @@ TAGS:   no_rotate no_vmirror no_hmirror
                 .. " - " .. castle.hallway[geoelf.directions.E]
                 .. ", "  .. castle.hallway[geoelf.directions.N]
                 .. " - " .. castle.hallway[geoelf.directions.S] .. ")")
-    print("  Moat: ("    .. castle.moat[geoelf.directions.W]
-                .. " - " .. castle.moat[geoelf.directions.E]
-                .. ", "  .. castle.moat[geoelf.directions.N]
-                .. " - " .. castle.moat[geoelf.directions.S] .. ")")
     print("  Open: ("    .. castle.open[geoelf.directions.W]
                 .. " - " .. castle.open[geoelf.directions.E]
                 .. ", "  .. castle.open[geoelf.directions.N]
@@ -931,18 +922,6 @@ TAGS:   no_rotate no_vmirror no_hmirror
     end
   end
 
-  -- draw the moat
-  fill_area { x1 = castle.moat[geoelf.directions.W],
-              x2 = castle.moat[geoelf.directions.E],
-              y1 = castle.moat[geoelf.directions.N],
-              y2 = castle.moat[geoelf.directions.S], fill = MOAT_GLYPH }
-
-  for i = geoelf.directions.COUNT_STRAIGHT, geoelf.directions.COUNT - 1 do
-    if (castle.turret[i].is_placed) then
-      make_circle { x = castle.turret[i].x, y = castle.turret[i].y,
-                    radius = CASTLE_TURRET_MOAT_RADIUS, fill = MOAT_GLYPH }
-    end
-  end
 
   -- draw the hallways
   fill_area { x1 = castle.hallway[geoelf.directions.W],
@@ -1022,12 +1001,12 @@ TAGS:   no_rotate no_vmirror no_hmirror
     if (gate_best == geoelf.directions.S) then
       gate_y = castle.hallway[geoelf.directions.S]
       fill_area { x1 = gate_x, x2 = gate_x + gate_size - 1,
-                  y1 = gate_y + 1, y2 = gate_y + 1 + CASTLE_MOAT,
+                  y1 = gate_y + 1, y2 = gate_y + 1 ,
                   fill = INSIDE_GLYPH }
     else
       gate_y = castle.hallway[geoelf.directions.N]
       fill_area { x1 = gate_x, x2 = gate_x + gate_size - 1,
-                  y1 = gate_y - 1 - CASTLE_MOAT, y2 = gate_y - 1,
+                  y1 = gate_y - 1 , y2 = gate_y - 1,
                   fill = INSIDE_GLYPH }
     end
     fill_area { x1 = gate_x, x2 = gate_x + gate_size - 1,
@@ -1043,12 +1022,12 @@ TAGS:   no_rotate no_vmirror no_hmirror
     local gate_x
     if (gate_best == geoelf.directions.E) then
       gate_x = castle.hallway[geoelf.directions.E]
-      fill_area { x1 = gate_x + 1, x2 = gate_x + 1 + CASTLE_MOAT,
+      fill_area { x1 = gate_x + 1, x2 = gate_x + 1 ,
                   y1 = gate_y, y2 = gate_y + gate_size - 1,
                   fill = INSIDE_GLYPH }
     else
       gate_x = castle.hallway[geoelf.directions.W]
-      fill_area { x1 = gate_x - 1 - CASTLE_MOAT, x2 = gate_x - 1,
+      fill_area { x1 = gate_x - 1 , x2 = gate_x - 1,
                   y1 = gate_y, y2 = gate_y + gate_size - 1,
                   fill = INSIDE_GLYPH }
     end
@@ -1091,7 +1070,7 @@ TAGS:   no_rotate no_vmirror no_hmirror
   -- apply special glyph meanings to castle
   --  -> remember that the "=" must be the first glyph for parsing reasons
   --  -> the castle cannot be overwritten
-  kmask(DOOR_GLYPH .. INSIDE_GLYPH .. MOAT_GLYPH .. WALL_GLYPH .. " = vault")
+  kmask(DOOR_GLYPH .. INSIDE_GLYPH .. WALL_GLYPH .. " = vault")
   kfeat(DOOR_GLYPH .. " = closed_door")
   kfeat(INSIDE_GLYPH .. " = floor")
 
