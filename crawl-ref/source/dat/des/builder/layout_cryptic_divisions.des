@@ -20,9 +20,6 @@
   CASTLE_OVERWRITABLE = 3
   CASTLE_TOTAL        = CASTLE_INNER +
                         CASTLE_OPEN  + CASTLE_OVERWRITABLE
-  CASTLE_TURRET_RADIUS      = 4
-  CASTLE_TURRET_OPEN_RADIUS = CASTLE_TURRET_RADIUS + CASTLE_OPEN
-  CASTLE_TURRET_OVERWRITABLE_RADIUS = CASTLE_OPEN    + CASTLE_OVERWRITABLE - 1
 
   INNER_WALL_SPACING_MIN = 6
   INNER_WALL_SPACING_MAX = 12
@@ -180,7 +177,7 @@ TAGS:   no_rotate no_vmirror no_hmirror
 
   -- choose the shape of the components
   castle = { base = {}, inner = {},  open = {},
-             overwritable = {}, turret = {} }
+             overwritable = {}  }
 
   for i = 0, geoelf.directions.COUNT_STRAIGHT - 1 do
     castle.base[i] = primary_vault.bounds[i]
@@ -233,22 +230,6 @@ TAGS:   no_rotate no_vmirror no_hmirror
                         .. " - " .. castle.overwritable[geoelf.directions.S]
                         .. ")")
   end
-
-  -- choose which turrets to add
-  for i = geoelf.directions.COUNT_STRAIGHT, geoelf.directions.COUNT - 1 do
-    local component_x = geoelf.directions.COMPONENT_X[i]
-    local component_y = geoelf.directions.COMPONENT_Y[i]
-
-    castle.turret[i] = {}
-    castle.turret[i].is_placed = (    is_castle[component_x]
-                                  and is_castle[component_y])
-    -- turret position is linked to inner rooms, not hallway
-    castle.turret[i].x = castle.inner[component_x]
-                         + geoelf.directions.STEP_SIGN[component_x]
-    castle.turret[i].y = castle.inner[component_y]
-                         + geoelf.directions.STEP_SIGN[component_y]
-  end
-
 
 
   --
@@ -885,12 +866,6 @@ TAGS:   no_rotate no_vmirror no_hmirror
               y1 = castle.open[geoelf.directions.N],
               y2 = castle.open[geoelf.directions.S], fill = INSIDE_GLYPH }
 
-  for i = geoelf.directions.COUNT_STRAIGHT, geoelf.directions.COUNT - 1 do
-    if (castle.turret[i].is_placed) then
-      make_circle { x = castle.turret[i].x, y = castle.turret[i].y,
-                    radius = CASTLE_TURRET_OPEN_RADIUS, fill = INSIDE_GLYPH }
-    end
-  end
 
 
 
@@ -925,30 +900,7 @@ TAGS:   no_rotate no_vmirror no_hmirror
                                            INNER_WALL_SPACING_MAX)
   end
 
-  -- draw the turrets
-  local turret_center = crawl.random_element {
-    [geoelf.glyphs.TREE]     = geoelf.glyphs.PLANTLIKE_OPTIONS[geoelf.glyphs.TREE],
-    [geoelf.glyphs.BUSH]     = geoelf.glyphs.PLANTLIKE_OPTIONS[geoelf.glyphs.BUSH],
-    [geoelf.glyphs.PLANT]    = geoelf.glyphs.PLANTLIKE_OPTIONS[geoelf.glyphs.PLANT],
-    [geoelf.glyphs.FUNGUS]   = geoelf.glyphs.PLANTLIKE_OPTIONS[geoelf.glyphs.FUNGUS],
-    [geoelf.glyphs.STATUE]   = geoelf.glyphs.FEATURE_OPTIONS[geoelf.glyphs.STATUE]   * 5,
-    [geoelf.glyphs.FOUNTAIN] = geoelf.glyphs.FEATURE_OPTIONS[geoelf.glyphs.FOUNTAIN] * 5,
-    [INSIDE_GLYPH]           = 15,
-  }
 
-  for i = geoelf.directions.COUNT_STRAIGHT, geoelf.directions.COUNT - 1 do
-    if (castle.turret[i].is_placed) then
-      make_round_box { x1 = castle.turret[i].x - CASTLE_TURRET_RADIUS,
-                       x2 = castle.turret[i].x + CASTLE_TURRET_RADIUS,
-                       y1 = castle.turret[i].y - CASTLE_TURRET_RADIUS,
-                       y2 = castle.turret[i].y + CASTLE_TURRET_RADIUS,
-                       floor = INSIDE_GLYPH, wall = WALL_GLYPH,
-                       door = DOOR_GLYPH,
-                       door_count = crawl.random_range(2, 4),
-                       passable = INSIDE_GLYPH, veto_gates = false }
-      mapgrd[castle.turret[i].x][castle.turret[i].y] = turret_center
-    end
-  end
 
 
 
