@@ -15,9 +15,9 @@
   --
 
   -- size of castle
-  CASTLE_INNER        = 4
-  CASTLE_OPEN         = 1 
-  CASTLE_OVERWRITABLE = 3
+  CASTLE_INNER        = 8
+  CASTLE_OPEN         = 4 
+  CASTLE_OVERWRITABLE = 6
   CASTLE_TOTAL        = CASTLE_INNER +
                         CASTLE_OPEN  + CASTLE_OVERWRITABLE
 
@@ -25,8 +25,8 @@
   INNER_WALL_SPACING_MAX = 12
 
   GATE_FROM_CORNER_MIN = 8
-  GATE_SIZE_MIN = 2
-  GATE_SIZE_MAX = 3
+  GATE_SIZE_MIN = 5
+  GATE_SIZE_MAX = 9
 
   -- room parameters
   ROOMS_OFFSET_MAX      = 1
@@ -53,7 +53,7 @@
   ROOMS_SPACING_EDGE   = math.ceil(ROOMS_SPACING_MIN / 2) + 1
   ROOMS_MIN_SPACE_EDGE = ROOMS_SPACING_EDGE + ROOMS_RADIUS_EDGE_MAX + 2
 
-  DEBUG_CASTLE_DESIGN = false
+  DEBUG_CASTLE_DESIGN = true 
 }}
 
 ##############################################################
@@ -104,10 +104,11 @@ SUBVAULT: H : cryptic_division_small
 SUBST: ABCDEFGH = .
 TAGS:   no_rotate no_vmirror no_hmirror
 {{
+
   local INSIDE_GLYPH = "'"
   local WALL_GLYPH   = "c"
   local DOOR_GLYPH   = "="
-
+  crawl.mpr("HI!!!!!!!!!!")
   --
   --  PHASE 1: Resize the map to maximal size.
   --
@@ -155,14 +156,14 @@ TAGS:   no_rotate no_vmirror no_hmirror
   end
 
   if (DEBUG_CASTLE_DESIGN) then
-    print("")
-    print("GEOELF CASTLE DEBUG INFO")
-    print("Primary vault")
-    print("  Bounds: (" .. primary_vault.bounds[geoelf.directions.W]
+    crawl.mpr("")
+    crawl.mpr("GEOELF CASTLE DEBUG INFO")
+    crawl.mpr("Primary vault")
+    crawl.mpr("  Bounds: (" .. primary_vault.bounds[geoelf.directions.W]
              .. " and " .. primary_vault.bounds[geoelf.directions.E]
              .. ", "    .. primary_vault.bounds[geoelf.directions.N]
              .. " and " .. primary_vault.bounds[geoelf.directions.S] .. ")")
-    print("  Borders: (" .. primary_vault.border[geoelf.directions.W]
+    crawl.mpr("  Borders: (" .. primary_vault.border[geoelf.directions.W]
               .. " and " .. primary_vault.border[geoelf.directions.E]
               .. ", "    .. primary_vault.border[geoelf.directions.N]
               .. " and " .. primary_vault.border[geoelf.directions.S]
@@ -211,7 +212,7 @@ TAGS:   no_rotate no_vmirror no_hmirror
   end
 
   if (DEBUG_CASTLE_DESIGN) then
-    print("Castle Bounds")
+    crawl.mpr("Castle Bounds")
     print("  Base: ("    .. castle.base[geoelf.directions.W]
                 .. " - " .. castle.base[geoelf.directions.E]
                 .. ", "  .. castle.base[geoelf.directions.N]
@@ -329,11 +330,11 @@ TAGS:   no_rotate no_vmirror no_hmirror
   end
 
   if (DEBUG_CASTLE_DESIGN) then
-    print("Rooms by edge")
+    crawl.mpr("Rooms by edge")
 
-    print("  Rooms along castle X: " .. edge_rooms.count_x)
-    print("  Rooms along castle X: " .. edge_rooms.count_x)
-    print("  Rooms minimum spacing: " .. ROOMS_SPACING_MIN ..
+    crawl.mpr("  Rooms along castle X: " .. edge_rooms.count_x)
+    crawl.mpr("  Rooms along castle X: " .. edge_rooms.count_x)
+    crawl.mpr("  Rooms minimum spacing: " .. ROOMS_SPACING_MIN ..
           " (straight),  " .. ROOMS_SPACING_EDGE .. " (diagonal)  + " ..
           ROOMS_BORDER_MIN .. " (border)")
 
@@ -351,7 +352,7 @@ TAGS:   no_rotate no_vmirror no_hmirror
         local pos = edge_rooms.row_base[i] + j * ROOMS_SPACING_MIN * step_sign
         line = line .. "  " .. pos
       end
-      print(line)
+      crawl.mpr(line)
     end
   end
 
@@ -408,7 +409,7 @@ TAGS:   no_rotate no_vmirror no_hmirror
   end
 
   if (DEBUG_CASTLE_DESIGN) then
-    print("Room grid positions")
+    crawl.mpr("Room grid positions")
 
     local line = "  X " .. room_pos_x.total .. ":"
     for i = 0, room_pos_x.total - 1 do
@@ -417,7 +418,7 @@ TAGS:   no_rotate no_vmirror no_hmirror
         line = line .. " (NODIAG)"
       end
     end
-    print(line)
+    crawl.mpr(line)
 
     local line = "  Y " .. room_pos_y.total .. ":"
     for i = 0, room_pos_y.total - 1 do
@@ -426,7 +427,7 @@ TAGS:   no_rotate no_vmirror no_hmirror
         line = line .. " (NODIAG)"
       end
     end
-    print(line)
+    crawl.mpr(line)
   end
 
 
@@ -889,9 +890,9 @@ TAGS:   no_rotate no_vmirror no_hmirror
           line = line .. mapgrd[x][y]
         end
       end
-      print(line)
+      crawl.mpr(line)
     end
-    print("")
+    crawl.mpr("")
   end
 }}
 
@@ -926,9 +927,9 @@ veto {{
   else
     if (DEBUG_CASTLE_DESIGN) then
       crawl.mpr("layout_geoelf_castle passed veto test")
-      print("Bounds:   " .. p_x_min .. " - " .. p_x_max ..
+      crawl.mpr("Bounds:   " .. p_x_min .. " - " .. p_x_max ..
             ", "         .. p_y_min .. " - " .. p_y_max)
-      print("Required: " ..        PRIMARY_VAULT_MIN_PADDING  ..
+      crawl.mpr("Required: " ..        PRIMARY_VAULT_MIN_PADDING  ..
             " - "        .. (gxm - PRIMARY_VAULT_MIN_PADDING) ..
             ", "         ..        PRIMARY_VAULT_MIN_PADDING  ..
             " - "        .. (gym - PRIMARY_VAULT_MIN_PADDING))
